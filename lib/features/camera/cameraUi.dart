@@ -1,7 +1,9 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_print, prefer_typing_uninitialized_variables
 
 import 'dart:async';
+import 'dart:io';
 
+import 'package:chamber/features/imageManipulation/imageCrop.dart';
 import 'package:chamber/features/saved/savedImages.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -72,200 +74,222 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-          backgroundColor: Colors.white,
-          body: Column(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Stack(children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.black87,
-                          borderRadius: BorderRadius.circular(20)),
-                      child: isDeviceConnected
-                          ? runningStream
-                              ? Container(
-                                  child: sensorData(),
-                                )
-                              : Container(
-                                  color: Colors.white,
-                                  alignment: Alignment.center,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      LoadingAnimationWidget.threeArchedCircle(
-                                          color: Colors.black87, size: 36),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          "UV Chamber is getting connected ...",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                          : Center(
-                              child: GestureDetector(
-                              onTap: checkWifiInfo,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ColorFiltered(
-                                      colorFilter: ColorFilter.mode(
-                                        Colors.yellow,
-                                        BlendMode.modulate,
-                                      ),
-                                      child: Lottie.asset(
-                                          'assets/findWifi.json',
-                                          height: 130,
-                                          width: 130)),
-                                  GestureDetector(
-                                    onTap: () {
-                                      checkWifiInfo();
-                                    },
-                                    child: Container(
-                                      height:
-                                          MediaQuery.sizeOf(context).height /
-                                              12,
-                                      width:
-                                          MediaQuery.sizeOf(context).width / 2,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color: Colors.white),
+    return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          toolbarHeight: 20,
+          title: Text(
+            "Camera",
+            style: TextStyle(
+                fontWeight: FontWeight.w700, color: Colors.black, fontSize: 20),
+          ),
+        ),
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Stack(children: [
+                  Container(
+                    decoration: BoxDecoration(
+                        color: Colors.black87,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: isDeviceConnected
+                        ? runningStream
+                            ? Container(
+                                child: sensorData(),
+                              )
+                            : Container(
+                                color: Colors.white,
+                                alignment: Alignment.center,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    LoadingAnimationWidget.threeArchedCircle(
+                                        color: Colors.black87, size: 36),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        "Check",
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500),
+                                        "UV Chamber is getting connected ...",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.black),
                                       ),
                                     ),
+                                  ],
+                                ),
+                              )
+                        : Center(
+                            child: GestureDetector(
+                            onTap: checkWifiInfo,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ColorFiltered(
+                                    colorFilter: ColorFilter.mode(
+                                      Colors.yellow,
+                                      BlendMode.modulate,
+                                    ),
+                                    child: Lottie.asset('assets/findWifi.json',
+                                        height: 130, width: 130)),
+                                GestureDetector(
+                                  onTap: () {
+                                    checkWifiInfo();
+                                  },
+                                  child: Container(
+                                    height:
+                                        MediaQuery.sizeOf(context).height / 12,
+                                    width: MediaQuery.sizeOf(context).width / 2,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.white),
+                                    child: Text(
+                                      "Check",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500),
+                                    ),
                                   ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(
-                                    "You are not Connected to Wifi\nplease ensure you are connected",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                            )),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Container(
-                          child: Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child: isDeviceConnected
-                                ? Icon(
-                                    Icons.wifi_sharp,
-                                    size: 30,
-                                  )
-                                : Icon(
-                                    Icons.wifi_off,
-                                    size: 30,
-                                  ),
-                          ),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                  ]),
-                ),
-              ),
-              Container(
-                height: 100,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    color: Colors.black87,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(50))),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.sizeOf(context).width / 4,
-                      child: Center(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              shape: CircleBorder()),
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                                context,
-                                PageTransition(
-                                    type: PageTransitionType.fade,
-                                    child: SavedImages()));
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.image,
-                              size: 30,
-                              color: Colors.black,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  "You are not Connected to Wifi\nplease ensure you are connected",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
                             ),
-                          ),
+                          )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Container(
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: isDeviceConnected
+                              ? Icon(
+                                  Icons.wifi_sharp,
+                                  size: 30,
+                                )
+                              : Icon(
+                                  Icons.wifi_off,
+                                  size: 30,
+                                ),
                         ),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
                       ),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white, shape: CircleBorder()),
-                      onPressed: () async {
-                        NativeShutterSound.play();
-                        final directory =
-                            (await getApplicationDocumentsDirectory())
-                                .path; //from path_provide package
-                        String fileName =
-                            "compuRFImage_${DateTime.now().microsecondsSinceEpoch.toString()}";
-                        String path = directory;
-                        print(directory);
-                        await screenshotController.captureAndSave(
-                            "/data/data/com.example.chamber/images" //set path where screenshot will be savedm,
-                            ,
-                            fileName: fileName);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.camera,
-                          size: 50,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: MediaQuery.sizeOf(context).width / 4,
-                      child: Center(
+                  ),
+                ]),
+              ),
+            ),
+            Container(
+              height: 100,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                  color: Colors.black87,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(50))),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.sizeOf(context).width / 4,
+                    child: Center(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: CircleBorder()),
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                              context,
+                              PageTransition(
+                                  type: PageTransitionType.fade,
+                                  child: SavedImages()));
+                        },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Icon(
                             Icons.image,
                             size: 30,
-                            color: Colors.transparent,
+                            color: Colors.black,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white, shape: CircleBorder()),
+                    onPressed: () async {
+                      if (isDeviceConnected && runningStream) {
+                        NativeShutterSound.play();
+                        final directory =
+                            (await getApplicationDocumentsDirectory())
+                                .path; //from path_provide package
+
+                        String fileName =
+                            "compuRFImage_${DateTime.now().microsecondsSinceEpoch.toString()}";
+                        String path = directory;
+                        print(directory);
+
+                        final capPath = await screenshotController.captureAndSave(
+                            "/data/data/com.example.chamber/original" //set path where screenshot will be savedm,
+                            ,
+                            fileName: fileName);
+
+                        final file = File(capPath!);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(capPath!),
+                          ),
+                        );
+
+                        Navigator.push(
+                            context,
+                            PageTransition(
+                                type: PageTransitionType.fade,
+                                child: ImageProcessing(
+                                  imageFile: file,
+                                )));
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.camera,
+                        size: 50,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.sizeOf(context).width / 4,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.image,
+                          size: 30,
+                          color: Colors.transparent,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          )),
-    );
+            ),
+          ],
+        ));
   }
 
   StreamBuilder<dynamic> sensorData() {
@@ -277,10 +301,10 @@ class _CameraPageState extends State<CameraPage>
           // var screenHeight = MediaQuery.of(context).size.height;
           return Container(
             child: Center(
-              child: RotatedBox(
-                quarterTurns: -45,
-                child: Screenshot(
-                  controller: screenshotController,
+              child: Screenshot(
+                controller: screenshotController,
+                child: RotatedBox(
+                  quarterTurns: -45,
                   child: Image.memory(
                     snapshot.data,
                     gaplessPlayback: true,
@@ -312,7 +336,7 @@ class _CameraPageState extends State<CameraPage>
   void connectWebSocket() async {
     try {
       channel = IOWebSocketChannel.connect(wsUrl);
-
+      // print("we are here");
       await channel.ready;
       streamController = StreamController.broadcast();
       streamController.addStream(channel.stream);
@@ -331,7 +355,9 @@ class _CameraPageState extends State<CameraPage>
 
         // print(state);
       });
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
 
     // print(state);
   }
