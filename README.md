@@ -1,4 +1,6 @@
-
+# Chromatogram
+It is a android app that takes image from a IOT based device using websockets 
+sends it to the server or cloud and runs python scripts and returns the output to the APP
 
 
 Images           |  Images
