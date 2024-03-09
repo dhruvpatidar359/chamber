@@ -1,12 +1,10 @@
 import 'dart:io';
-
-import 'package:chamber/features/camera/cameraUi.dart';
-import 'package:chamber/features/saved/savedImages.dart';
+import 'package:chamber/features/saved/saved_images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
-void main() async {
+Future main() async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.white,
   ));
@@ -24,18 +22,18 @@ void main() async {
     await path2.create();
   }
 
-  var status = await Permission.location.isGranted;
-  if (status) {
-    // We haven't asked for permission yet or the permission has been denied before, but not permanently.
-  }
+  // var status = await Permission.location.isGranted;
+  // if (status) {
+  // We haven't asked for permission yet or the permission has been denied before, but not permanently.
+  // }
 
 // You can also directly ask permission about its status.
-  else {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.location,
-    ].request();
-    // The OS restricts access, for example, because of parental controls.
-  }
+  // else {
+  //   Map<Permission, PermissionStatus> statuses = await [
+  //     Permission.location,
+  //   ].request();
+  // The OS restricts access, for example, because of parental controls.
+  // }
 
   runApp(const MyApp());
 }
@@ -53,7 +51,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: SavedImages(),
+      home: const SavedImages(),
     );
   }
 }

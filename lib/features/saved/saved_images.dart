@@ -1,17 +1,11 @@
 import 'dart:io';
-
-import 'package:chamber/features/camera/cameraUi.dart';
+import 'package:chamber/features/camera/camera_ui.dart';
 import 'package:chamber/features/seeImage.dart';
-import 'package:chamber/model/savedElementModel.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:social_share/social_share.dart';
-
-import '../imageManipulation/imageCrop.dart';
+import 'package:share_plus/share_plus.dart';
+import '../imageManipulation/image_crop.dart';
 
 class SavedImages extends StatefulWidget {
   const SavedImages({super.key});
@@ -45,7 +39,7 @@ class _SavedImagesState extends State<SavedImages> {
   }
 
   Future<void> _renameImage(File imageFile, String newName) async {
-    String newPath = imageFile.parent.path + '/' + newName;
+    String newPath = '${imageFile.parent.path}/$newName';
     await imageFile.rename(newPath);
     _loadImages();
   }
@@ -67,26 +61,30 @@ class _SavedImagesState extends State<SavedImages> {
             children: [
               GestureDetector(
                 onTap: () {
-                  Navigator.pushReplacement(
-                      context,
-                      PageTransition(
-                          type: PageTransitionType.fade, child: CameraPage()));
+                  // Navigator.pushReplacement(
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.fade,
+                      child: const CameraPage(),
+                    ),
+                  );
                 },
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       color: Colors.lightBlue,
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(10),
                           bottomLeft: Radius.circular(10))),
-                  child: Padding(
-                    padding: const EdgeInsets.all(14.0),
+                  child: const Padding(
+                    padding: EdgeInsets.all(14.0),
                     child: Icon(
                       Icons.camera_alt,
                     ),
                   ),
                 ),
               ),
-              Container(
+              const SizedBox(
                 width: 0.5,
                 height: 1,
               ),
@@ -94,6 +92,7 @@ class _SavedImagesState extends State<SavedImages> {
                 onTap: () async {
                   XFile? file = await _pickImage();
                   if (file != null) {
+                    if (!context.mounted) return;
                     Navigator.push(
                         context,
                         PageTransition(
@@ -106,13 +105,13 @@ class _SavedImagesState extends State<SavedImages> {
                   }
                 },
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       color: Colors.lightBlue,
                       borderRadius: BorderRadius.only(
                           topRight: Radius.circular(10),
                           bottomRight: Radius.circular(10))),
-                  child: Padding(
-                    padding: const EdgeInsets.all(14.0),
+                  child: const Padding(
+                    padding: EdgeInsets.all(14.0),
                     child: Icon(
                       Icons.upload,
                     ),
@@ -124,8 +123,9 @@ class _SavedImagesState extends State<SavedImages> {
         ),
         backgroundColor: Colors.white,
         appBar: AppBar(
+          backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
-          title: Text(
+          title: const Text(
             "Recents",
             style: TextStyle(
                 fontWeight: FontWeight.w700, color: Colors.black, fontSize: 20),
@@ -138,13 +138,13 @@ class _SavedImagesState extends State<SavedImages> {
                 Expanded(
                   child: ListView.builder(
                     itemCount: _imageFiles.length,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     itemBuilder: (context, index) {
                       File imageFile = _imageFiles[index];
 
                       return Column(
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           Container(
@@ -152,7 +152,7 @@ class _SavedImagesState extends State<SavedImages> {
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
+                                boxShadow: const [
                                   BoxShadow(
                                       color: Colors.black38, blurRadius: 0.5)
                                 ]),
@@ -168,9 +168,11 @@ class _SavedImagesState extends State<SavedImages> {
                                             context,
                                             PageRouteBuilder(
                                               transitionDuration:
-                                                  Duration(milliseconds: 400),
+                                                  const Duration(
+                                                      milliseconds: 400),
                                               reverseTransitionDuration:
-                                                  Duration(milliseconds: 400),
+                                                  const Duration(
+                                                      milliseconds: 400),
                                               pageBuilder: (context, animation,
                                                       secondaryAnimation) =>
                                                   SeeImage(
@@ -207,34 +209,29 @@ class _SavedImagesState extends State<SavedImages> {
                                         Text(
                                           imageFile.path.split('/').last,
                                         ),
-                                        Spacer(),
+                                        const Spacer(),
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceEvenly,
                                           children: [
                                             IconButton(
-                                              icon: Icon(Icons.share),
+                                              icon: const Icon(Icons.share),
                                               color: Colors.black87,
                                               onPressed: () async {
-                                                // final result =
-                                                //     await Share.shareXFiles([
-                                                //   XFile(imageFile.path)
-                                                // ],
-                                                //         text: imageFile.path
-                                                //             .split('/')
-                                                //             .last);
-                                                try {
-                                                  SocialShare.shareOptions(
-                                                      imageFile.path
-                                                          .split('/')
-                                                          .last,
-                                                      imagePath:
-                                                          imageFile.path);
-                                                } catch (e) {}
+                                                Share.shareXFiles(
+                                                  [
+                                                    XFile(
+                                                      imageFile.path,
+                                                    ),
+                                                  ],
+                                                  text: imageFile.path
+                                                      .split('/')
+                                                      .last,
+                                                );
                                               },
                                             ),
                                             IconButton(
-                                              icon: Icon(Icons.edit),
+                                              icon: const Icon(Icons.edit),
                                               color: Colors.black87,
                                               onPressed: () {
                                                 showDialog(
@@ -248,8 +245,8 @@ class _SavedImagesState extends State<SavedImages> {
                                                           Colors.white,
                                                       surfaceTintColor:
                                                           Colors.white,
-                                                      title:
-                                                          Text('Rename Image'),
+                                                      title: const Text(
+                                                          'Rename Image'),
                                                       content: Column(
                                                         mainAxisSize:
                                                             MainAxisSize.min,
@@ -259,12 +256,13 @@ class _SavedImagesState extends State<SavedImages> {
                                                               newName = value;
                                                             },
                                                             decoration:
-                                                                InputDecoration(
+                                                                const InputDecoration(
                                                               hintText:
                                                                   'Enter new name',
                                                             ),
                                                           ),
-                                                          SizedBox(height: 16),
+                                                          const SizedBox(
+                                                              height: 16),
                                                           Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
@@ -276,15 +274,15 @@ class _SavedImagesState extends State<SavedImages> {
                                                                           context)
                                                                       .pop();
                                                                 },
-                                                                child: Text(
-                                                                    'Cancel',
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .black)),
                                                                 style: ElevatedButton
                                                                     .styleFrom(
                                                                         backgroundColor:
                                                                             Colors.lightBlueAccent),
+                                                                child: const Text(
+                                                                    'Cancel',
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .black)),
                                                               ),
                                                               ElevatedButton(
                                                                 onPressed: () {
@@ -296,16 +294,17 @@ class _SavedImagesState extends State<SavedImages> {
                                                                           context)
                                                                       .pop();
                                                                 },
-                                                                child: Text(
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                        backgroundColor:
+                                                                            Colors.lightBlueAccent),
+                                                                child:
+                                                                    const Text(
                                                                   'Rename',
                                                                   style: TextStyle(
                                                                       color: Colors
                                                                           .black),
                                                                 ),
-                                                                style: ElevatedButton
-                                                                    .styleFrom(
-                                                                        backgroundColor:
-                                                                            Colors.lightBlueAccent),
                                                               ),
                                                             ],
                                                           ),
@@ -317,7 +316,7 @@ class _SavedImagesState extends State<SavedImages> {
                                               },
                                             ),
                                             IconButton(
-                                              icon: Icon(Icons.delete),
+                                              icon: const Icon(Icons.delete),
                                               color: Colors.red,
                                               onPressed: () {
                                                 _deleteImage(imageFile);
