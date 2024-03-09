@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:photo_view/photo_view.dart';
 
 class SeeImage extends StatelessWidget {
   const SeeImage({super.key, required this.imageFile, required this.tag});

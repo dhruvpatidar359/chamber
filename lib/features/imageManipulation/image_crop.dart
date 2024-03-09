@@ -6,7 +6,6 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:photo_view/photo_view.dart';
 
 class ImageProcessing extends StatefulWidget {
   const ImageProcessing({super.key, required this.imageFile});

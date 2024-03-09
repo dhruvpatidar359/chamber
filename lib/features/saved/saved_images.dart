@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:chamber/features/camera/camera_ui.dart';
-import 'package:chamber/features/seeImage.dart';
+import 'package:chamber/features/see_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
