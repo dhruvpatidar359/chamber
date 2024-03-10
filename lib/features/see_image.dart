@@ -1,11 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:photo_view/photo_view.dart';
 
 class SeeImage extends StatelessWidget {
-  SeeImage({required this.imageFile, required this.tag});
+  const SeeImage({super.key, required this.imageFile, required this.tag});
 
-  final imageFile;
-  final tag;
+  final File imageFile;
+  final Object tag;
 
   @override
   Widget build(BuildContext context) {
@@ -13,17 +13,20 @@ class SeeImage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           imageFile.path.split('/').last,
-          style: TextStyle(
+          style: const TextStyle(
               fontWeight: FontWeight.w700, color: Colors.black, fontSize: 20),
         ),
       ),
       body: Hero(
         tag: tag,
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.sizeOf(context).height,
           width: MediaQuery.sizeOf(context).width,
-          child: PhotoView(
-            imageProvider: FileImage(imageFile),
+          child: InteractiveViewer(
+            child: Image.file(
+              imageFile,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       ),

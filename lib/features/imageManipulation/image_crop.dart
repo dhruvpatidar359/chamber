@@ -1,18 +1,15 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:image/image.dart' as i;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:photo_view/photo_view.dart';
 
 class ImageProcessing extends StatefulWidget {
-  ImageProcessing({required this.imageFile});
-  final imageFile;
+  const ImageProcessing({super.key, required this.imageFile});
+  final XFile imageFile;
   @override
   State<ImageProcessing> createState() => _ImageProcessingState();
 }
@@ -42,8 +39,8 @@ class _ImageProcessingState extends State<ImageProcessing> {
       uiSettings: [
         AndroidUiSettings(
             toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
+            toolbarColor: Colors.white,
+            toolbarWidgetColor: Colors.black,
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: false),
         IOSUiSettings(
@@ -130,7 +127,10 @@ class _ImageProcessingState extends State<ImageProcessing> {
       ),
       body: Center(
         child: _processedImage != null
-            ? PhotoView(imageProvider: FileImage(_processedImage!))
+            ? Image.file(
+                _processedImage!,
+                fit: BoxFit.cover,
+              )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
