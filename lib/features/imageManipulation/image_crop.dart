@@ -127,9 +127,13 @@ class _ImageProcessingState extends State<ImageProcessing> {
       ),
       body: Center(
         child: _processedImage != null
-            ? Image.file(
-                _processedImage!,
-                fit: BoxFit.cover,
+            ? SizedBox(
+                height: MediaQuery.sizeOf(context).height,
+                width: MediaQuery.sizeOf(context).width,
+                child: Image.file(
+                  _processedImage!,
+                  fit: BoxFit.cover,
+                ),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
