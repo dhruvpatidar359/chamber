@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:ffi/ffi.dart';
 
 class ImageProcessing extends StatefulWidget {
   const ImageProcessing({super.key, required this.imageFile});
@@ -17,11 +19,13 @@ class ImageProcessing extends StatefulWidget {
 class _ImageProcessingState extends State<ImageProcessing> {
   // late CroppedFile croppedFileOutput;
   Directory directory = Directory("/data/data/com.example.chamber/images");
+  final dylib = Platform.isAndroid
+      ? DynamicLibrary.open("libOpenCV_ffi.so")
+      : DynamicLibrary.process();
   File? _processedImage;
 
   @override
   void initState() {
-    // TODO: implement initState
     callCropper();
     super.initState();
   }
@@ -58,11 +62,32 @@ class _ImageProcessingState extends State<ImageProcessing> {
     if (croppedFile != null) {
       print(croppedFile.path);
       print("path ha bhai");
-      await processImage(croppedFile);
+      final imagePath = croppedFile.path.toNativeUtf8();
+      final imageFfi = dylib.lookupFunction<Void Function(Pointer<Utf8>),
+          void Function(Pointer<Utf8>)>('detect_contour_tlc');
+      imageFfi(imagePath);
+      setState(() {
+        _processedImage = File(imagePath.toDartString());
+      });
+      saveImage(imagePath.toDartString());
+      // await processImage(croppedFile);
       // await FileSaver.instance.saveFile(file: croppedFile.,);
     }
 
     // Rename (move) the cropped file to the destination directory
+  }
+
+  void saveImage(String finalImage) async {
+    String originalFilenameWithoutExtension =
+        widget.imageFile.path.split('/').last.split('.').first;
+    String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    String uniqueFilename = '${originalFilenameWithoutExtension}_$timestamp';
+
+// Specify the path with the unique filename
+    String filePath = '/data/data/com.example.chamber/images/$uniqueFilename';
+
+// Write the image data to the file
+    await File(filePath).writeAsBytes(File(finalImage).readAsBytesSync());
   }
 
   Future<void> processImage(CroppedFile _selectedImage) async {
