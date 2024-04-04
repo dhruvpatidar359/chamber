@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:ffi/ffi.dart';
+// import 'package:simple_edge_detection/edge_detection.dart';
 
 class ImageProcessing extends StatefulWidget {
   const ImageProcessing({super.key, required this.imageFile});
@@ -31,6 +32,9 @@ class _ImageProcessingState extends State<ImageProcessing> {
   }
 
   Future<void> callCropper() async {
+    // EdgeDetectionResult result = await EdgeDetection.detectEdges(
+    //   widget.imageFile.path,
+    // );
     CroppedFile? croppedFile = await ImageCropper().cropImage(
       sourcePath: widget.imageFile.path,
       aspectRatioPresets: [
@@ -62,6 +66,7 @@ class _ImageProcessingState extends State<ImageProcessing> {
     if (croppedFile != null) {
       print(croppedFile.path);
       print("path ha bhai");
+//ffi
       final imagePath = croppedFile.path.toNativeUtf8();
       final imageFfi = dylib.lookupFunction<Void Function(Pointer<Utf8>),
           void Function(Pointer<Utf8>)>('detect_contour_tlc');
@@ -70,6 +75,7 @@ class _ImageProcessingState extends State<ImageProcessing> {
         _processedImage = File(imagePath.toDartString());
       });
       saveImage(imagePath.toDartString());
+//ffi
       // await processImage(croppedFile);
       // await FileSaver.instance.saveFile(file: croppedFile.,);
     }

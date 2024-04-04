@@ -356,32 +356,32 @@ class _CameraPageState extends State<CameraPage>
   // }
 
   void connectWebSocket() async {
-    try {
-      channel = IOWebSocketChannel.connect(wsUrl);
-      // print("we are here");
-      await channel.ready;
-      streamController = StreamController.broadcast();
-      streamController.addStream(channel.stream);
-      streamController.stream.listen((message) async {
-        // print(await streamController.stream.isEmpty);
-        print(message);
-        if (mounted) {
-          setState(() {
-            if (message == 'connected') {
-              runningStream = true;
-              isDeviceConnected = true;
-            } else {
-              runningStream = false;
-              isDeviceConnected = false;
-            }
-          });
-        }
+    channel = IOWebSocketChannel.connect(
+      wsUrl,
+    );
+    // print("we are here");
+    await channel.ready;
+    streamController = StreamController.broadcast();
+    streamController.addStream(channel.stream);
+    streamController.stream.listen((message) async {
+      if (mounted) {
+        setState(() {
+          runningStream = true;
+          isDeviceConnected = true;
+        });
+        // setState(() {
+        //   if (message == 'connected') {
+        //     runningStream = true;
+        //     isDeviceConnected = true;
+        //   } else {
+        //     runningStream = false;
+        //     isDeviceConnected = false;
+        //   }
+        // });
+      }
 
-        // print(state);
-      });
-    } catch (e) {
-      print(e);
-    }
+      // print(state);
+    });
 
     // print(state);
   }
