@@ -66,21 +66,25 @@ class _ImageProcessingState extends State<ImageProcessing> {
     if (croppedFile != null) {
       print(croppedFile.path);
       print("path ha bhai");
-//ffi
-      final imagePath = croppedFile.path.toNativeUtf8();
-      final imageFfi = dylib.lookupFunction<Void Function(Pointer<Utf8>),
-          void Function(Pointer<Utf8>)>('detect_contour_tlc');
-      imageFfi(imagePath);
-      setState(() {
-        _processedImage = File(imagePath.toDartString());
-      });
-      saveImage(imagePath.toDartString());
-//ffi
+      calculateTLC(croppedFile);
       // await processImage(croppedFile);
       // await FileSaver.instance.saveFile(file: croppedFile.,);
     }
 
     // Rename (move) the cropped file to the destination directory
+  }
+
+  void calculateTLC(CroppedFile croppedFile) {
+    //ffi
+    final imagePath = croppedFile.path.toNativeUtf8();
+    final imageFfi = dylib.lookupFunction<Void Function(Pointer<Utf8>),
+        void Function(Pointer<Utf8>)>('detect_contour_tlc');
+    imageFfi(imagePath);
+    setState(() {
+      _processedImage = File(imagePath.toDartString());
+    });
+    saveImage(imagePath.toDartString());
+//ffi
   }
 
   void saveImage(String finalImage) async {
@@ -95,60 +99,60 @@ class _ImageProcessingState extends State<ImageProcessing> {
 // Write the image data to the file
     await File(filePath).writeAsBytes(File(finalImage).readAsBytesSync());
   }
+// REMOVED: AS WE ARE CALCULATING TLC LOCALLY
+//   Future<void> processImage(CroppedFile _selectedImage) async {
+//     // Get the original filename without the path and extension
+//     String originalFilenameWithoutExtension =
+//         widget.imageFile.path.split('/').last.split('.').first;
 
-  Future<void> processImage(CroppedFile _selectedImage) async {
-    // Get the original filename without the path and extension
-    String originalFilenameWithoutExtension =
-        widget.imageFile.path.split('/').last.split('.').first;
+// // Rename the file to have a .jpeg extension
+// //     String renamedFilename = '$originalFilenameWithoutExtension.jpeg';
+// //     File img = File(widget.imageFile.path);
+// //
+// //     final image = i.decodeImage(img.readAsBytesSync())!;
+// //     print(originalFilenameWithoutExtension);
+// //     File(img.path + ".jpeg").writeAsBytesSync(i.encodeJpg(image));
 
-// Rename the file to have a .jpeg extension
-//     String renamedFilename = '$originalFilenameWithoutExtension.jpeg';
-//     File img = File(widget.imageFile.path);
-//
-//     final image = i.decodeImage(img.readAsBytesSync())!;
-//     print(originalFilenameWithoutExtension);
-//     File(img.path + ".jpeg").writeAsBytesSync(i.encodeJpg(image));
+// // Save the renamed file
+// //     final v = await widget.imageFile
+// //         .rename('path/to/your/save/location/$renamedFilename');
+// //     print(v);
 
-// Save the renamed file
-//     final v = await widget.imageFile
-//         .rename('path/to/your/save/location/$renamedFilename');
-//     print(v);
+//     var request = http.MultipartRequest(
+//         'POST', Uri.parse('https://chamber.pythonanywhere.com/upload'));
+//     request.files
+//         .add(await http.MultipartFile.fromPath('file', _selectedImage.path));
 
-    var request = http.MultipartRequest(
-        'POST', Uri.parse('https://chamber.pythonanywhere.com/upload'));
-    request.files
-        .add(await http.MultipartFile.fromPath('file', _selectedImage.path));
+//     http.StreamedResponse response = await request.send();
+//     print(response.stream);
 
-    http.StreamedResponse response = await request.send();
-    print(response.stream);
+//     // Check if the request was successful
+//     if (response.statusCode == 200) {
+//       ByteStream byteStream = response.stream;
 
-    // Check if the request was successful
-    if (response.statusCode == 200) {
-      ByteStream byteStream = response.stream;
+//       // Convert the byte stream to a Uint8List
+//       Uint8List byteList = await byteStream.toBytes();
 
-      // Convert the byte stream to a Uint8List
-      Uint8List byteList = await byteStream.toBytes();
+//       // Save the Uint8List as a file
+//       String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
-      // Save the Uint8List as a file
-      String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+// // Create a unique filename by combining the original filename and timestamp
+//       String uniqueFilename = '${originalFilenameWithoutExtension}_$timestamp';
 
-// Create a unique filename by combining the original filename and timestamp
-      String uniqueFilename = '${originalFilenameWithoutExtension}_$timestamp';
+// // Specify the path with the unique filename
+//       String filePath = '/data/data/com.example.chamber/images/$uniqueFilename';
 
-// Specify the path with the unique filename
-      String filePath = '/data/data/com.example.chamber/images/$uniqueFilename';
-
-// Write the image data to the file
-      await File(filePath).writeAsBytes(byteList);
-      // Update the UI
-      _processedImage = File(filePath);
-      print("Done");
-      setState(() {});
-    } else {
-      // Handle error
-      print('Error: ${response.reasonPhrase}');
-    }
-  }
+// // Write the image data to the file
+//       await File(filePath).writeAsBytes(byteList);
+//       // Update the UI
+//       _processedImage = File(filePath);
+//       print("Done");
+//       setState(() {});
+//     } else {
+//       // Handle error
+//       print('Error: ${response.reasonPhrase}');
+//     }
+//   }
 
   @override
   Widget build(BuildContext context) {
