@@ -1,10 +1,12 @@
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
+// import 'dart:typed_data';
+// import 'package:chamber/features/saved/saved_images.dart';
+// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:path/path.dart' as path2;
 import 'package:image_cropper/image_cropper.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:ffi/ffi.dart';
@@ -35,6 +37,7 @@ class _ImageProcessingState extends State<ImageProcessing> {
     // EdgeDetectionResult result = await EdgeDetection.detectEdges(
     //   widget.imageFile.path,
     // );
+    // edgeDetection(File(widget.imageFile.path));
     CroppedFile? croppedFile = await ImageCropper().cropImage(
       sourcePath: widget.imageFile.path,
       aspectRatioPresets: [
@@ -60,18 +63,31 @@ class _ImageProcessingState extends State<ImageProcessing> {
       ],
     );
 
-    // croppedFileOutput = croppedFile!;
-
-    print(croppedFile);
-    if (croppedFile != null) {
-      print(croppedFile.path);
+    if (croppedFile?.path != null) {
+      print(croppedFile!.path);
       print("path ha bhai");
       calculateTLC(croppedFile);
       // await processImage(croppedFile);
       // await FileSaver.instance.saveFile(file: croppedFile.,);
+    } else {
+      if (!mounted) return;
+      Navigator.pop(context);
     }
 
     // Rename (move) the cropped file to the destination directory
+  }
+
+  void edgeDetection(File imageFile) {
+    //ffi
+    final imagePath = imageFile.path.toNativeUtf8();
+    final imageFfi = dylib.lookupFunction<Void Function(Pointer<Utf8>),
+        void Function(Pointer<Utf8>)>('detect_edge');
+    imageFfi(imagePath);
+    setState(() {
+      _processedImage = File(imagePath.toDartString());
+    });
+    saveImage(imagePath.toDartString());
+//ffi
   }
 
   void calculateTLC(CroppedFile croppedFile) {
@@ -158,7 +174,14 @@ class _ImageProcessingState extends State<ImageProcessing> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Processing'),
+        title: _processedImage == null
+            ? const Text('Processing')
+            : Text(
+                path2.basename(
+                  _processedImage?.path.replaceAll("image_cropper_", "") ?? "",
+                ),
+              ),
+        backgroundColor: Colors.transparent,
       ),
       body: Center(
         child: _processedImage != null

@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'package:chamber/features/imageManipulation/image_crop.dart';
 import 'package:chamber/features/saved/saved_images.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 import 'package:native_shutter_sound/native_shutter_sound.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:web_socket_channel/io.dart';
@@ -227,10 +227,11 @@ class _CameraPageState extends State<CameraPage>
                               ),
                               onPressed: () {
                                 Navigator.pushReplacement(
-                                    context,
-                                    PageTransition(
-                                        type: PageTransitionType.fade,
-                                        child: const SavedImages()));
+                                  context,
+                                  CupertinoPageRoute(
+                                    builder: (context) => const SavedImages(),
+                                  ),
+                                );
                               },
                               child: const Padding(
                                 padding: EdgeInsets.all(8.0),
@@ -275,14 +276,15 @@ class _CameraPageState extends State<CameraPage>
                               );
 
                               Navigator.push(
-                                  context,
-                                  PageTransition(
-                                      type: PageTransitionType.fade,
-                                      child: ImageProcessing(
-                                        imageFile: XFile(
-                                          file.path,
-                                        ),
-                                      )));
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) => ImageProcessing(
+                                    imageFile: XFile(
+                                      file.path,
+                                    ),
+                                  ),
+                                ),
+                              );
                             }
                           },
                           child: const Padding(
