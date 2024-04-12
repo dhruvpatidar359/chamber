@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:chamber/features/camera/camera_ui.dart';
 import 'package:chamber/features/see_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:share_plus/share_plus.dart';
 import '../imageManipulation/image_crop.dart';
 
@@ -64,9 +64,8 @@ class _SavedImagesState extends State<SavedImages> {
                   // Navigator.pushReplacement(
                   Navigator.push(
                     context,
-                    PageTransition(
-                      type: PageTransitionType.fade,
-                      child: const CameraPage(),
+                    CupertinoPageRoute(
+                      builder: (context) => const CameraPage(),
                     ),
                   );
                 },
@@ -94,14 +93,19 @@ class _SavedImagesState extends State<SavedImages> {
                   if (file != null) {
                     if (!context.mounted) return;
                     Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.fade,
-                            child: ImageProcessing(
-                              imageFile: file,
-                            ))).then((_) => setState(() {
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => ImageProcessing(
+                          imageFile: file,
+                        ),
+                      ),
+                    ).then(
+                      (_) => setState(
+                        () {
                           _loadImages();
-                        }));
+                        },
+                      ),
+                    );
                   }
                 },
                 child: Container(
