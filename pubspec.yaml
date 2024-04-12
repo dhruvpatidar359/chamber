@@ -55,10 +55,11 @@ dependencies:
   open_settings: ^2.0.2
   # simple_edge_detection:
   #   git:
-  #     url: https://github.com/CodeWithBishal/flutter-simple-edge-detection
-  # edge_detection:
-  #   git:
-  #     url: https://github.com/3rsin3rgul/edge_detection
+  #     url: https://github.com/codewithbishal/flutter-simple-edge-detection
+  #     ref: 2dae43914e40f6b8b2905d814a197b15de02b514
+  edge_detection:
+    git:
+      url: https://github.com/CodeWithBishal/edge_detection
   path: ^1.9.0
   ffi: ^2.1.2
   # edge_detection: ^1.1.3
