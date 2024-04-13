@@ -48,6 +48,7 @@ class _CameraPageState extends State<CameraPage>
   @override
   void initState() {
     super.initState();
+    pingServer();
     connectWebSocket();
     initTimer();
   }
@@ -66,6 +67,7 @@ class _CameraPageState extends State<CameraPage>
         if (channel.closeCode != null) {
           runningStream = false;
           isDeviceConnected = false;
+          pingServer();
         }
       }
       if (mounted) {
@@ -356,6 +358,43 @@ class _CameraPageState extends State<CameraPage>
   // connectWebSocket();
   // }
   // }
+
+  void pingServer() async {
+    channel = IOWebSocketChannel.connect(
+      wsUrl,
+      connectTimeout: Duration(
+        seconds: 2,
+      ),
+      // Replace this with your WebSocket URL
+    );
+    try {
+      await channel.ready;
+    } catch (e) {
+      var snackBar = SnackBar(
+        content: Text('No device found, Capture using Mobile?'),
+        action: SnackBarAction(
+          label: "Yes",
+          onPressed: () async {
+            final ImagePicker _picker = ImagePicker();
+            final XFile? photo = await _picker.pickImage(
+              source: ImageSource.camera,
+            );
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => ImageProcessing(
+                  imageFile: XFile(
+                    photo!.path,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
 
   void connectWebSocket() async {
     channel = IOWebSocketChannel.connect(
