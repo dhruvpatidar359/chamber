@@ -43,21 +43,19 @@ class _ImageProcessingState extends State<ImageProcessing> {
     // );
     // EdgeDetection.processImage(widget.imageFile.path, result, 0)
     //     .then((value) => print(value));
-
-    bool data = await EdgeDetection.detectEdgeFromGallery(
-      widget.imageFile.path,
+    print(widget.imageFile.path);
+    bool cropped = await EdgeDetection.detectEdgeFromGallery(
+      File(widget.imageFile.path).uri.toString(),
       widget.imageFile.path,
       androidCropTitle: 'Crop', // use custom localizations for android
       androidCropBlackWhiteTitle: 'Black White',
       androidCropReset: 'Reset',
     );
-
-    if (data) {
-      calculateTLC(CroppedFile(widget.imageFile.path));
-    } else {
+    if (!cropped) {
       Navigator.pop(context);
+    } else {
+      calculateTLC(CroppedFile(widget.imageFile.path));
     }
-
     // CroppedFile? croppedFile = await ImageCropper().cropImage(
     //   sourcePath: widget.imageFile.path,
     //   aspectRatioPresets: [
@@ -86,7 +84,7 @@ class _ImageProcessingState extends State<ImageProcessing> {
     // if (croppedFile?.path != null) {
     //   print(croppedFile!.path);
     //   print("path ha bhai");
-    calculateTLC(CroppedFile(widget.imageFile.path));
+    // calculateTLC(CroppedFile(widget.imageFile.path));
     //   // await processImage(croppedFile);
     //   // await FileSaver.instance.saveFile(file: croppedFile.,);
     // } else {
