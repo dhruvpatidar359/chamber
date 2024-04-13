@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path2;
 import 'package:image_cropper/image_cropper.dart';
 // import 'package:http/http.dart' as http;
@@ -43,19 +44,27 @@ class _ImageProcessingState extends State<ImageProcessing> {
     // );
     // EdgeDetection.processImage(widget.imageFile.path, result, 0)
     //     .then((value) => print(value));
-    print(widget.imageFile.path);
+    var imagePath = widget.imageFile.path;
+    var extension = path2.extension(imagePath);
+    if (extension.toString().toLowerCase().contains("png")) {
+      imagePath = await handlePngImage(imagePath);
+    }
+    var savePath =
+        "${path2.withoutExtension(imagePath)}_crop${path2.extension(imagePath)}";
     bool cropped = await EdgeDetection.detectEdgeFromGallery(
-      File(widget.imageFile.path).uri.toString(),
-      widget.imageFile.path,
+      File(imagePath).uri.toString(),
+      savePath,
       androidCropTitle: 'Crop', // use custom localizations for android
       androidCropBlackWhiteTitle: 'Black White',
       androidCropReset: 'Reset',
     );
-    if (!cropped) {
+    final autoCroppedFile = File(savePath);
+    if (!cropped || !autoCroppedFile.existsSync()) {
       Navigator.pop(context);
     } else {
-      calculateTLC(CroppedFile(widget.imageFile.path));
+      calculateTLC(CroppedFile(savePath));
     }
+
     // CroppedFile? croppedFile = await ImageCropper().cropImage(
     //   sourcePath: widget.imageFile.path,
     //   aspectRatioPresets: [
@@ -93,6 +102,14 @@ class _ImageProcessingState extends State<ImageProcessing> {
     // }
 
     // Rename (move) the cropped file to the destination directory
+  }
+
+  Future<String> handlePngImage(String imgPath) async {
+    final image = img.decodeImage(File(imgPath).readAsBytesSync());
+    File(path2.setExtension(imgPath, ".jpg"))
+        .writeAsBytesSync(img.encodeJpg(image!));
+
+    return path2.setExtension(imgPath, ".jpg");
   }
 
   void calculateTLC(CroppedFile croppedFile) {

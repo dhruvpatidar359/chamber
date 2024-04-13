@@ -60,7 +60,7 @@ dependencies:
   edge_detection:
     git:
       url: https://github.com/CodeWithBishal/edge_detection
-      ref: 7f1c98c
+      ref: a7ee6df
   path: ^1.9.0
   ffi: ^2.1.2
   # edge_detection: ^1.1.3

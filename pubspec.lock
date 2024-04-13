@@ -117,8 +117,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "7f1c98c"
-      resolved-ref: "7f1c98cc3a2d8f5d30bca92be522cd59c88d8bbb"
+      ref: a7ee6df
+      resolved-ref: a7ee6dfa238ed84b407841018b53770a7f3dae76
       url: "https://github.com/CodeWithBishal/edge_detection"
     source: git
     version: "1.1.3"
