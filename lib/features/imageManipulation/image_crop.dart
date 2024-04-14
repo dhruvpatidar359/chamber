@@ -1,15 +1,20 @@
 import 'dart:ffi';
 import 'dart:io';
+// import 'dart:isolate';
 // import 'dart:typed_data';
 // import 'package:chamber/features/saved/saved_images.dart';
 // import 'package:flutter/cupertino.dart';
+
+import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path2;
 import 'package:image_cropper/image_cropper.dart';
 // import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:ffi/ffi.dart';
+// import 'package:simple_edge_detection/edge_detection.dart';
 // import 'package:simple_edge_detection/edge_detection.dart';
 
 class ImageProcessing extends StatefulWidget {
@@ -34,60 +39,77 @@ class _ImageProcessingState extends State<ImageProcessing> {
   }
 
   Future<void> callCropper() async {
-    // EdgeDetectionResult result = await EdgeDetection.detectEdges(
+    // EdgeDetectionResult result = await EdgeDetector().detectEdges(
     //   widget.imageFile.path,
     // );
-    // edgeDetection(File(widget.imageFile.path));
-    CroppedFile? croppedFile = await ImageCropper().cropImage(
-      sourcePath: widget.imageFile.path,
-      aspectRatioPresets: [
-        CropAspectRatioPreset.square,
-        CropAspectRatioPreset.ratio3x2,
-        CropAspectRatioPreset.original,
-        CropAspectRatioPreset.ratio4x3,
-        CropAspectRatioPreset.ratio16x9
-      ],
-      uiSettings: [
-        AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.white,
-            toolbarWidgetColor: Colors.black,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        IOSUiSettings(
-          title: 'Cropper',
-        ),
-        WebUiSettings(
-          context: context,
-        ),
-      ],
-    );
-
-    if (croppedFile?.path != null) {
-      print(croppedFile!.path);
-      print("path ha bhai");
-      calculateTLC(croppedFile);
-      // await processImage(croppedFile);
-      // await FileSaver.instance.saveFile(file: croppedFile.,);
-    } else {
-      if (!mounted) return;
-      Navigator.pop(context);
+    // EdgeDetection.processImage(widget.imageFile.path, result, 0)
+    //     .then((value) => print(value));
+    var imagePath = widget.imageFile.path;
+    var extension = path2.extension(imagePath);
+    if (extension.toString().toLowerCase().contains("png")) {
+      imagePath = await handlePngImage(imagePath);
     }
+    var savePath =
+        "${path2.withoutExtension(imagePath)}_crop${path2.extension(imagePath)}";
+    bool cropped = await EdgeDetection.detectEdgeFromGallery(
+      File(imagePath).uri.toString(),
+      savePath,
+      androidCropTitle: 'Crop', // use custom localizations for android
+      androidCropBlackWhiteTitle: 'Black White',
+      androidCropReset: 'Reset',
+    );
+    final autoCroppedFile = File(savePath);
+    if (!cropped || !autoCroppedFile.existsSync()) {
+      Navigator.pop(context);
+    } else {
+      calculateTLC(CroppedFile(savePath));
+    }
+
+    // CroppedFile? croppedFile = await ImageCropper().cropImage(
+    //   sourcePath: widget.imageFile.path,
+    //   aspectRatioPresets: [
+    //     CropAspectRatioPreset.square,
+    //     CropAspectRatioPreset.ratio3x2,
+    //     CropAspectRatioPreset.original,
+    //     CropAspectRatioPreset.ratio4x3,
+    //     CropAspectRatioPreset.ratio16x9
+    //   ],
+    //   uiSettings: [
+    //     AndroidUiSettings(
+    //         toolbarTitle: 'Cropper',
+    //         toolbarColor: Colors.white,
+    //         toolbarWidgetColor: Colors.black,
+    //         initAspectRatio: CropAspectRatioPreset.original,
+    //         lockAspectRatio: false),
+    //     IOSUiSettings(
+    //       title: 'Cropper',
+    //     ),
+    //     WebUiSettings(
+    //       context: context,
+    //     ),
+    //   ],
+    // );
+
+    // if (croppedFile?.path != null) {
+    //   print(croppedFile!.path);
+    //   print("path ha bhai");
+    // calculateTLC(CroppedFile(widget.imageFile.path));
+    //   // await processImage(croppedFile);
+    //   // await FileSaver.instance.saveFile(file: croppedFile.,);
+    // } else {
+    //   if (!mounted) return;
+    //   Navigator.pop(context);
+    // }
 
     // Rename (move) the cropped file to the destination directory
   }
 
-  void edgeDetection(File imageFile) {
-    //ffi
-    final imagePath = imageFile.path.toNativeUtf8();
-    final imageFfi = dylib.lookupFunction<Void Function(Pointer<Utf8>),
-        void Function(Pointer<Utf8>)>('detect_edge');
-    imageFfi(imagePath);
-    setState(() {
-      _processedImage = File(imagePath.toDartString());
-    });
-    saveImage(imagePath.toDartString());
-//ffi
+  Future<String> handlePngImage(String imgPath) async {
+    final image = img.decodeImage(File(imgPath).readAsBytesSync());
+    File(path2.setExtension(imgPath, ".jpg"))
+        .writeAsBytesSync(img.encodeJpg(image!));
+
+    return path2.setExtension(imgPath, ".jpg");
   }
 
   void calculateTLC(CroppedFile croppedFile) {
