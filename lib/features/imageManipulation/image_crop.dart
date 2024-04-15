@@ -46,8 +46,8 @@ class _ImageProcessingState extends State<ImageProcessing> {
     //     .then((value) => print(value));
     var imagePath = widget.imageFile.path;
     var extension = path2.extension(imagePath);
-    if (extension.toString().toLowerCase().contains("png")) {
-      imagePath = await handlePngImage(imagePath);
+    if (!extension.toString().toLowerCase().contains("jpg")) {
+      imagePath = await handleNonJPGImage(imagePath);
     }
     var savePath =
         "${path2.withoutExtension(imagePath)}_crop${path2.extension(imagePath)}";
@@ -104,7 +104,7 @@ class _ImageProcessingState extends State<ImageProcessing> {
     // Rename (move) the cropped file to the destination directory
   }
 
-  Future<String> handlePngImage(String imgPath) async {
+  Future<String> handleNonJPGImage(String imgPath) async {
     final image = img.decodeImage(File(imgPath).readAsBytesSync());
     File(path2.setExtension(imgPath, ".jpg"))
         .writeAsBytesSync(img.encodeJpg(image!));
