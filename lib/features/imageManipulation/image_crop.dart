@@ -1,11 +1,9 @@
-import 'dart:ffi';
 import 'dart:io';
 // import 'dart:isolate';
 // import 'dart:typed_data';
 // import 'package:chamber/features/saved/saved_images.dart';
 // import 'package:flutter/cupertino.dart';
-
-import 'package:edge_detection/edge_detection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path2;
@@ -13,7 +11,6 @@ import 'package:image_cropper/image_cropper.dart';
 // import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:ffi/ffi.dart';
 // import 'package:simple_edge_detection/edge_detection.dart';
 // import 'package:simple_edge_detection/edge_detection.dart';
 
@@ -27,9 +24,9 @@ class ImageProcessing extends StatefulWidget {
 class _ImageProcessingState extends State<ImageProcessing> {
   // late CroppedFile croppedFileOutput;
   Directory directory = Directory("/data/data/com.example.chamber/images");
-  final dylib = Platform.isAndroid
-      ? DynamicLibrary.open("libOpenCV_ffi.so")
-      : DynamicLibrary.process();
+  // final dylib = Platform.isAndroid
+  //     ? DynamicLibrary.open("libOpenCV_ffi.so")
+  //     : DynamicLibrary.process();
   File? _processedImage;
 
   @override
@@ -51,14 +48,19 @@ class _ImageProcessingState extends State<ImageProcessing> {
     }
     var savePath =
         "${path2.withoutExtension(imagePath)}_crop${path2.extension(imagePath)}";
-    bool cropped = await EdgeDetection.detectEdgeFromGallery(
-      File(imagePath).uri.toString(),
-      savePath,
-      androidCropTitle: 'Crop', // use custom localizations for android
-      androidCropBlackWhiteTitle: 'Black White',
-      androidCropReset: 'Reset',
-    );
+
+    // bool cropped = await EdgeDetection.detectEdgeFromGallery(
+    //   File(imagePath).uri.toString(),
+    //   savePath,
+    //   androidCropTitle: 'Crop', // use custom localizations for android
+    //   androidCropBlackWhiteTitle: 'Black White',
+    //   androidCropReset: 'Reset',
+    // );
+    //TODO
+    bool cropped = true;
+
     final autoCroppedFile = File(savePath);
+    if (!mounted) return;
     if (!cropped || !autoCroppedFile.existsSync()) {
       Navigator.pop(context);
     } else {
@@ -106,22 +108,61 @@ class _ImageProcessingState extends State<ImageProcessing> {
 
   Future<String> handleNonJPGImage(String imgPath) async {
     final image = img.decodeImage(File(imgPath).readAsBytesSync());
-    File(path2.setExtension(imgPath, ".jpg"))
-        .writeAsBytesSync(img.encodeJpg(image!));
+    if (image == null) {
+      Navigator.pop(context);
+    }
+    File(path2.setExtension(imgPath, ".jpg")).writeAsBytesSync(
+      img.encodeJpg(
+        image!,
+      ),
+    );
 
     return path2.setExtension(imgPath, ".jpg");
   }
 
   void calculateTLC(CroppedFile croppedFile) {
     //ffi
+<<<<<<< Updated upstream
+    final imagePath = croppedFile.path;
+    var a = true;
+    // final imageFfi = dylib.lookupFunction<Bool Function(Pointer<Utf8>),
+    //     bool Function(Pointer<Utf8>)>('detect_contour_tlcc');
+    //TODO
+    if (a == true) {
+=======
     final imagePath = croppedFile.path.toNativeUtf8();
-    final imageFfi = dylib.lookupFunction<Void Function(Pointer<Utf8>),
-        void Function(Pointer<Utf8>)>('detect_contour_tlc');
-    imageFfi(imagePath);
-    setState(() {
-      _processedImage = File(imagePath.toDartString());
-    });
-    saveImage(imagePath.toDartString());
+    final imageFfi = dylib.lookupFunction<Bool Function(Pointer<Utf8>),
+        bool Function(Pointer<Utf8>)>('detect_contour_tlcc');
+    if (imageFfi(imagePath)) {
+>>>>>>> Stashed changes
+      setState(() {
+        _processedImage = File(imagePath);
+      });
+      saveImage(imagePath);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            "Please crop the image properly and leave no margins! Redirecting...",
+          ),
+          action: SnackBarAction(
+            label: "Crop",
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) => ImageProcessing(
+                    imageFile: XFile(croppedFile.path),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+
 //ffi
   }
 
@@ -220,9 +261,9 @@ class _ImageProcessingState extends State<ImageProcessing> {
                 children: [
                   LoadingAnimationWidget.threeArchedCircle(
                       color: Colors.black87, size: 36),
-                  Padding(
+                  const Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
+                    child: const Text(
                       "Processing Image...",
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.black),
